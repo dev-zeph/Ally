@@ -31,7 +31,7 @@ function cardInner(p) {
   const elevated = p.tier !== "watching";
   return `
     <div class="top">
-      <div class="who">${esc(p.id)}<small>${esc(seat)} · ${esc(p.age)}${esc(p.sex)} · CTAS ${esc(p.ctas)}</small></div>
+      <div class="who">${esc(p.name ? `${p.name} · ${p.id}` : p.id)}<small>${esc(seat)} · ${esc(p.age)}${esc(p.sex)} · CTAS ${esc(p.ctas)}</small></div>
       <div class="tier">${esc(TIER_LABEL[p.tier] || p.tier)}${p.acknowledged ? " · acknowledged" : ""}</div>
     </div>
     <div class="complaint">${esc(p.complaint)}</div>
@@ -73,12 +73,15 @@ function renderCards(patients) {
   if (current.join() !== ids.join()) ids.forEach((id) => cards.appendChild(cardEls.get(id)));
 }
 
+let names = {};
+
 function eventRow(e) {
+  const who = names[e.patient_id] ? `${names[e.patient_id]} (${e.patient_id})` : e.patient_id;
   return `
     <li class="${esc(e.severity)}">
       <span class="ts">${esc(e.ts.slice(11, 19))}</span>
       <span class="src">${esc(SOURCE_LABEL[e.source] || e.source)}</span>
-      <span class="detail">${esc(e.patient_id)}: ${esc(e.detail)}</span>
+      <span class="detail">${esc(who)}: ${esc(e.detail)}</span>
     </li>`;
 }
 
@@ -86,6 +89,7 @@ function render(state) {
   $("clock").textContent = state.now.slice(11, 19);
   $("mode").textContent = `${state.mode} mode`;
   $("count").textContent = `${state.patients.length} waiting`;
+  for (const p of state.patients) if (p.name) names[p.id] = p.name;
   renderCards(state.patients);
   $("events").innerHTML = state.events.length
     ? state.events.slice().reverse().map(eventRow).join("")

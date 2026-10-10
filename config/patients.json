@@ -1,8 +1,8 @@
 [
-  {"id":"P3","seat":1,"age":24,"sex":"M","ctas":5,"complaint":"sprained wrist",
+  {"id":"P3","name":"Guest","seat":1,"age":24,"sex":"M","ctas":5,"complaint":"sprained wrist",
    "triage_time":"2026-10-10T10:40:00","triage_vitals":{"hr":72,"spo2":99,"sbp":124},
    "history_flags":[],"status":"waiting"},
-  {"id":"P7","seat":2,"age":37,"sex":"F","ctas":3,"complaint":"abdominal pain, pain on breathing",
+  {"id":"P7","name":"Dacio","seat":2,"age":37,"sex":"M","ctas":3,"complaint":"abdominal pain, pain on breathing",
    "triage_time":"2026-10-10T11:14:00","triage_vitals":{"hr":78,"spo2":98,"sbp":118},
    "history_flags":["recent_trauma"],"history_note":"Fall from horse ~3 months ago",
    "status":"waiting"},

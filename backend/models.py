@@ -24,6 +24,7 @@ class Patient:
     triage_vitals: dict         # {"hr": 78, "spo2": 98, "sbp": 118}
     history_flags: list = field(default_factory=list)
     history_note: str = ""
+    name: str = ""              # shown on the dashboard when set; mock data
     status: str = "waiting"     # "waiting" | "called_in" | "left"
 
 

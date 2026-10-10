@@ -18,7 +18,7 @@ def template_summary(p: Patient, events: list, trend: dict, now: datetime) -> st
     hx = history_text(p) or "none recorded"
 
     lines = [
-        f"Patient {p.id}: waited {fmt_wait(waited)}. Triaged {triaged:%H:%M}, CTAS {p.ctas}, {p.complaint}. Hx: {hx}.",
+        f"Patient {p.id}{f' ({p.name})' if p.name else ''}: waited {fmt_wait(waited)}. Triaged {triaged:%H:%M}, CTAS {p.ctas}, {p.complaint}. Hx: {hx}.",
         f"Heart rate {trend['hr_start']} → {trend['hr_end']} over the wait (range {trend['hr_min']} to {trend['hr_max']}). "
         f"SpO2 {trend['spo2_start']}% → {trend['spo2_end']}% (range {trend['spo2_min']} to {trend['spo2_max']}%). "
         "Wearable values simulated.",

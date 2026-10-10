@@ -33,6 +33,7 @@ SEATS = json.loads((CONFIG / "seats.json").read_text())
 PATIENTS = {}
 EVENTS = []      # full log, newest last
 HANDOFFS = {}    # patient id -> handoff text
+SWAPPED = False  # demo control: the two seated patients trade seats
 brain = None
 sim = None
 camera = Camera(SETTINGS, TIMERS, SEATS)
@@ -57,11 +58,17 @@ def init_state():
     global brain, sim
     PATIENTS.clear()
     PATIENTS.update({p["id"]: Patient(**p) for p in json.loads((CONFIG / "patients.json").read_text())})
+    if SWAPPED:
+        swap(*[p for p in PATIENTS.values() if p.seat])
     EVENTS.clear()
     HANDOFFS.clear()
     brain = Brain(PATIENTS, log_system)
     sim = WearableSim(PATIENTS, SETTINGS, TIMERS)
     camera.reset()
+
+
+def swap(a: Patient, b: Patient):
+    a.seat, b.seat = b.seat, a.seat
 
 
 def waiting():
@@ -89,6 +96,7 @@ def camera_conditions(p: Patient, now: datetime) -> list:
 
 def tick():
     now = datetime.now()
+    camera.labels = {p.seat: p.name or p.id for p in waiting() if p.seat}
     EVENTS.extend(sim.tick(now))
     if camera.status == "test":
         camera.step_forced()
@@ -215,6 +223,19 @@ def wearable_control(pid: str, body: dict = Body()):
         sim.set_scenario(pid, body["scenario"])
     else:
         sim.set_manual(pid, body.get("hr"), body.get("spo2"))
+    return {"ok": True}
+
+
+@app.post("/api/swap_seats")
+def swap_seats():
+    """Handheld demo: seats are numbered left to right, so flip who sits on which side."""
+    global SWAPPED
+    seated = [p for p in PATIENTS.values() if p.seat]
+    if len(seated) != 2:
+        raise HTTPException(400, "Swap needs exactly two seated patients")
+    swap(*seated)
+    SWAPPED = not SWAPPED
+    camera.reset()
     return {"ok": True}
 
 

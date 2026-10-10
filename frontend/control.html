@@ -10,6 +10,7 @@
   <div class="sim-banner">SIMULATED WEARABLE: demo control</div>
   <div class="control-top">
     <button id="reset-all">Reset whole demo</button>
+    <button id="swap">Swap seats (left/right)</button>
     <span class="muted">Values here are generated, not measured. Reset reloads all patients and clears the log.</span>
   </div>
   <div id="panels" class="control"></div>
@@ -37,7 +38,7 @@
         </div>
         <label>HR <input type="range" min="40" max="180" data-k="hr"><span data-v="hr"></span></label>
         <label>SpO2 <input type="range" min="80" max="100" data-k="spo2"><span data-v="spo2"></span></label>`;
-      el.querySelector("h3").textContent = `${p.id} · ${p.seat ? "Seat " + p.seat : "Off camera"} · CTAS ${p.ctas}`;
+
       el.querySelector(".complaint").textContent =
         `${p.complaint} · triage HR ${p.triage_vitals.hr}, SpO2 ${p.triage_vitals.spo2}%`;
       el.querySelectorAll("button").forEach((b) => {
@@ -61,6 +62,8 @@
       for (const p of sorted) {
         if (!built.has(p.id)) built.set(p.id, build(p));
         const el = built.get(p.id);
+        const side = p.seat === 1 ? "left of frame" : p.seat === 2 ? "right of frame" : "off camera";
+        el.querySelector("h3").textContent = `${p.name ? p.name + " · " : ""}${p.id} · ${side} · CTAS ${p.ctas}`;
         el.querySelector(".live").textContent = `HR ${p.hr} · SpO2 ${p.spo2}% · ${p.scenario}`;
         el.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.s === p.scenario));
         el.querySelectorAll("input").forEach((input) => {
@@ -72,6 +75,7 @@
     }
 
     document.getElementById("reset-all").onclick = () => post("/api/reset");
+    document.getElementById("swap").onclick = () => post("/api/swap_seats");
 
     function connect() {
       const ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`);

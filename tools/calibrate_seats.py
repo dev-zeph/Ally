@@ -24,7 +24,7 @@ def on_click(event, x, y, flags, param):
 
 
 def main():
-    cap = cv2.VideoCapture(SETTINGS["pose"]["camera_index"])
+    cap = cv2.VideoCapture(SETTINGS["pose"].get("source") or SETTINGS["pose"]["camera_index"])
     if not cap.isOpened():
         raise SystemExit("Could not open the camera. Check camera permission for your terminal app.")
     cv2.namedWindow(WINDOW)

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ALLEY: Waiting Room Monitor</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="brand">ALLEY <span>ER waiting-room deterioration monitor</span></div>
+    <div class="status">
+      <span id="mode" class="chip">demo mode</span>
+      <span id="clock"></span>
+      <span id="conn" class="chip off">connecting</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="camera">
+      <h2>Camera <span id="cam-chip" class="chip off">off</span></h2>
+      <div class="video-wrap">
+        <img id="video" alt="Live camera preview with seat zones">
+        <div id="video-placeholder">Waiting for camera</div>
+      </div>
+      <h2>Event log</h2>
+      <ul id="events"><li class="empty">No events yet</li></ul>
+    </section>
+
+    <section class="patients">
+      <h2>Who to check first <span id="count" class="muted"></span></h2>
+      <div id="cards"></div>
+    </section>
+  </main>
+
+  <dialog id="handoff">
+    <h3 id="handoff-title">Handoff</h3>
+    <pre id="handoff-text"></pre>
+    <p class="muted">Built from logged events only. Wearable values are simulated.</p>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+
+  <footer>Camera: live. Wearable &amp; records: simulated for demo. No video stored. No facial recognition.</footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

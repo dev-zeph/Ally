@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ALLEY: Simulated Wearable</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="sim-banner">SIMULATED WEARABLE: demo control</div>
+  <div class="control-top">
+    <button id="reset-all">Reset whole demo</button>
+    <span class="muted">Values here are generated, not measured. Reset reloads all patients and clears the log.</span>
+  </div>
+  <div id="panels" class="control"></div>
+
+  <script>
+    const panels = document.getElementById("panels");
+    const built = new Map();
+
+    function post(url, body) {
+      return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+    }
+
+    function build(p) {
+      const el = document.createElement("div");
+      el.className = "card";
+      el.innerHTML = `
+        <h3></h3>
+        <div class="muted complaint"></div>
+        <div class="live"></div>
+        <div class="buttons">
+          <button data-s="stable">Stable</button>
+          <button data-s="hr_climb">HR climb</button>
+          <button data-s="spo2_drop">SpO2 drop</button>
+          <button data-s="reset">Reset</button>
+        </div>
+        <label>HR <input type="range" min="40" max="180" data-k="hr"><span data-v="hr"></span></label>
+        <label>SpO2 <input type="range" min="80" max="100" data-k="spo2"><span data-v="spo2"></span></label>`;
+      el.querySelector("h3").textContent = `${p.id} · ${p.seat ? "Seat " + p.seat : "Off camera"} · CTAS ${p.ctas}`;
+      el.querySelector(".complaint").textContent =
+        `${p.complaint} · triage HR ${p.triage_vitals.hr}, SpO2 ${p.triage_vitals.spo2}%`;
+      el.querySelectorAll("button").forEach((b) => {
+        b.onclick = () => post(`/api/wearable/${p.id}`, { scenario: b.dataset.s });
+      });
+      el.querySelectorAll("input").forEach((input) => {
+        input.oninput = () => {
+          el.querySelector(`[data-v=${input.dataset.k}]`).textContent = input.value;
+          post(`/api/wearable/${p.id}`, { [input.dataset.k]: Number(input.value) });
+        };
+      });
+      panels.appendChild(el);
+      return el;
+    }
+
+    function render(state) {
+      const ids = state.patients.map((p) => p.id);
+      for (const [id, el] of built) if (!ids.includes(id)) { el.remove(); built.delete(id); }
+      // Seated (on camera) patients first, in seat order.
+      const sorted = state.patients.slice().sort((a, b) => (a.seat || 99) - (b.seat || 99) || a.id.localeCompare(b.id));
+      for (const p of sorted) {
+        if (!built.has(p.id)) built.set(p.id, build(p));
+        const el = built.get(p.id);
+        el.querySelector(".live").textContent = `HR ${p.hr} · SpO2 ${p.spo2}% · ${p.scenario}`;
+        el.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.s === p.scenario));
+        el.querySelectorAll("input").forEach((input) => {
+          if (document.activeElement === input) return;
+          input.value = p[input.dataset.k];
+          el.querySelector(`[data-v=${input.dataset.k}]`).textContent = p[input.dataset.k];
+        });
+      }
+    }
+
+    document.getElementById("reset-all").onclick = () => post("/api/reset");
+
+    function connect() {
+      const ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`);
+      ws.onmessage = (msg) => render(JSON.parse(msg.data));
+      ws.onclose = () => setTimeout(connect, 1000);
+    }
+    connect();
+  </script>
+</body>
+</html>

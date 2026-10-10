@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<title>ALLEY Pitch</title>
+<!--
+  ALLEY pitch deck. 5 slides, 16:9 (13.333in x 7.5in).
+  Re-export:
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu \
+    --no-pdf-header-footer --print-to-pdf="ALLEY-Pitch.pdf" "file://$PWD/deck.html"
+-->
+<style>
+  @page { size: 13.333in 7.5in; margin: 0; }
+  :root {
+    --ink: #12263a;
+    --muted: #51667a;
+    --line: #d5dee6;
+    --paper: #f7f9fb;
+    --card: #ffffff;
+    --teal: #0b7a75;
+    --teal-soft: #e3f1f0;
+    --amber: #b26a00;
+    --amber-soft: #fbefd9;
+    --red: #b3261e;
+    --red-soft: #fbe6e4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); }
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  section {
+    width: 13.333in; height: 7.5in;
+    padding: 0.5in 0.85in 0.95in;
+    position: relative; overflow: hidden;
+    page-break-after: always; break-after: page;
+    background: var(--paper);
+    display: flex; flex-direction: column;
+  }
+  section:last-of-type { page-break-after: auto; break-after: auto; }
+  .kicker {
+    font-size: 15pt; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 0.16in;
+  }
+  h1 { font-size: 44pt; line-height: 1.08; font-weight: 700; letter-spacing: -0.01em; }
+  .sub { font-size: 23pt; line-height: 1.3; color: var(--muted); margin-top: 0.2in; max-width: 11in; }
+  .sub b { color: var(--ink); }
+  .foot {
+    position: absolute; left: 0.85in; right: 0.85in; bottom: 0.3in;
+    font-size: 10.5pt; line-height: 1.35; color: var(--muted);
+    border-top: 1px solid var(--line); padding-top: 0.09in;
+    display: flex; gap: 0.3in; justify-content: space-between; align-items: flex-end;
+  }
+  .foot .n { font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .grow { flex: 1; margin-top: 0.14in; display: flex; flex-direction: column; justify-content: center; }
+  .row { display: flex; gap: 0.3in; }
+  .card {
+    flex: 1; background: var(--card); border: 1px solid var(--line);
+    border-radius: 0.14in; padding: 0.26in 0.28in;
+  }
+  .card h3 { font-size: 21pt; line-height: 1.15; margin-bottom: 0.1in; }
+  .card p, .card li { font-size: 16.5pt; line-height: 1.32; color: var(--muted); }
+  .card p b, .card li b { color: var(--ink); }
+  .tag { font-size: 12pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.08in; }
+
+  /* slide 1 */
+  .stat .big { font-size: 60pt; font-weight: 700; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+  .stat p { margin-top: 0.12in; font-size: 17pt; }
+
+  /* slide 2 */
+  .flow { display: flex; align-items: stretch; gap: 0.2in; }
+  .inputs { flex: 1.55; display: flex; flex-direction: column; gap: 0.1in; }
+  .in {
+    background: var(--card); border: 1px solid var(--line); border-radius: 0.12in;
+    padding: 0.11in 0.22in; display: flex; gap: 0.2in; align-items: center;
+  }
+  .in .num {
+    width: 0.46in; height: 0.46in; border-radius: 50%; background: var(--teal); color: #fff;
+    font-size: 17pt; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none;
+  }
+  .in h3 { font-size: 18pt; line-height: 1.15; }
+  .in p { font-size: 14pt; line-height: 1.28; color: var(--muted); margin-top: 0.03in; }
+  .arrow { display: flex; align-items: center; font-size: 34pt; color: var(--teal); font-weight: 700; }
+  .nurse { flex: 1; background: var(--ink); color: #fff; border-radius: 0.14in; padding: 0.24in 0.28in; }
+  .nurse .tag { color: #8fd3cf; }
+  .pill { display: block; font-size: 17pt; font-weight: 700; border-radius: 0.09in; padding: 0.07in 0.16in; margin-bottom: 0.08in; }
+  .p1 { background: var(--teal-soft); color: var(--teal); }
+  .p2 { background: var(--amber-soft); color: var(--amber); }
+  .p3 { background: var(--red-soft); color: var(--red); }
+  .nurse p { font-size: 15pt; line-height: 1.3; color: #d6e0e8; margin-top: 0.1in; }
+  .today { display: flex; gap: 0.2in; margin-top: 0.12in; }
+  .today div { flex: 1; border-radius: 0.1in; padding: 0.09in 0.2in; font-size: 13.5pt; line-height: 1.3; }
+  .today b { display: block; font-size: 11.5pt; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.02in; }
+  .work { background: var(--teal-soft); } .work b { color: var(--teal); }
+  .sim { background: var(--amber-soft); } .sim b { color: var(--amber); }
+
+  /* slide 3 */
+  .hw li { list-style: none; padding-left: 0.18in; border-left: 3px solid var(--teal); margin-bottom: 0.1in; font-size: 14pt; line-height: 1.26; }
+  .hw li:last-child { margin-bottom: 0; }
+  .banner { margin-top: 0.15in; font-size: 20pt; line-height: 1.25; font-weight: 700; color: var(--ink); }
+  .banner span { color: var(--teal); }
+
+  .s3 .card { padding: 0.22in 0.26in; }
+  .s3 .card h3 { font-size: 20pt; }
+  .s3 .card p { font-size: 15.5pt; line-height: 1.28; }
+  /* slide 4 */
+  .step { margin-top: 0.2in; background: var(--ink); color: #fff; border-radius: 0.14in; padding: 0.17in 0.3in; display: flex; gap: 0.35in; align-items: center; }
+  .step .tag { color: #8fd3cf; margin: 0; white-space: nowrap; }
+  .step p { font-size: 18pt; line-height: 1.3; }
+  .promise { margin-top: 0.14in; font-size: 17pt; color: var(--muted); }
+
+  /* slide 5 */
+  section.honour { background: var(--ink); color: #fff; justify-content: center; padding: 0.9in 1.4in 1in; }
+  .honour .kicker { color: #8fd3cf; }
+  .honour h1 { font-size: 58pt; font-weight: 600; }
+  .honour .rule { width: 1.1in; height: 3px; background: #8fd3cf; margin: 0.34in 0; }
+  .honour p { font-size: 23pt; line-height: 1.42; color: #dbe4eb; max-width: 9.6in; }
+  .honour p + p { margin-top: 0.2in; }
+  .honour p.last { color: #fff; font-weight: 600; }
+  .honour .foot { left: 1.4in; right: 0.85in; border-top-color: #33485c; color: #9fb1c1; }
+  .honour .foot .n { color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- 1. PROBLEM -->
+<section>
+  <div class="kicker">The problem</div>
+  <h1>After triage, nobody is watching<br>the waiting room.</h1>
+  <p class="sub">A patient can look stable at triage, sit down to wait, and get worse for hours with no one positioned to see it.</p>
+  <div class="grow">
+    <div class="row">
+      <div class="card stat">
+        <div class="big">673</div>
+        <p>deaths in Nova Scotia emergency departments in 2023-24. It was <b>406</b> in <span style="white-space:nowrap">2020-21.*</span></p>
+      </div>
+      <div class="card stat">
+        <div class="big">55,000</div>
+        <p>people left without being seen in 2022-23, about <b>10%</b> of 530,000 emergency visits.</p>
+      </div>
+      <div class="card stat">
+        <div class="big">32.8%</div>
+        <p>of emergency patients in an Edinburgh study got worse in at least one vital sign <b>within 4 hours</b>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <span>*Counts all deaths after triage and before discharge or admission, not only waiting-room deaths. Nova Scotia Health also cites sicker patients. Sources: Nova Scotia Health figures reported by CTV News and The Globe and Mail, July 2024. Reed et al., SNAP40-ED study (250 patients), Emergency Care Journal, 2021.</span>
+    <span class="n">1 / 5</span>
+  </div>
+</section>
+
+<!-- 2. SOLUTION -->
+<section>
+  <div class="kicker">The solution</div>
+  <h1>ALLEY keeps watching while you wait.</h1>
+  <p class="sub">It tells the nurse who needs help first. <b>It does not replace the nurse.</b></p>
+  <div class="grow">
+    <div class="flow">
+      <div class="inputs">
+        <div class="in"><div class="num">1</div><div>
+          <h3>Camera: posture, seat by seat</h3>
+          <p>Upright, slumped, or lying down. Computer vision (OpenCV, pose estimation). No facial recognition. No video stored.</p></div></div>
+        <div class="in"><div class="num">2</div><div>
+          <h3>Wearable band: heart rate, blood oxygen</h3>
+          <p>The kind of device hospitals are already piloting.</p></div></div>
+        <div class="in"><div class="num">3</div><div>
+          <h3>Health record: triage, complaint, history</h3>
+          <p>The same signal means more for a higher-risk patient.</p></div></div>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="nurse">
+        <div class="tag">What the nurse sees</div>
+        <span class="pill p1">Watching</span>
+        <span class="pill p2">Check soon</span>
+        <span class="pill p3">Check now</span>
+        <p>Every flag spells out the reason.</p>
+        <p>When the patient is called in: a handoff timeline of everything that happened while they waited.</p>
+      </div>
+    </div>
+    <div class="today">
+      <div class="work"><b>Working today</b>Live camera posture detection, the rules brain, the nurse dashboard, the handoff summary.</div>
+      <div class="sim"><b>Simulated today</b>Wearable data (from a control panel) and patient records (mock data).</div>
+    </div>
+  </div>
+  <div class="foot">
+    <span>Built today at the Tribe AI Hackathon, Saint Mary's University, Halifax. People are tracked by seat, not by face.</span>
+    <span class="n">2 / 5</span>
+  </div>
+</section>
+
+<!-- 3. WHY IT WORKS -->
+<section>
+  <div class="kicker">Why it works</div>
+  <h1>It cross-checks before it alarms.</h1>
+  <div class="grow">
+    <div class="row s3">
+      <div class="card" style="flex:1.12">
+        <div class="tag">Cross-checked</div>
+        <h3>Fewer false alarms, by design</h3>
+        <p>One mild signal alone: keep watching. A severe sign is flagged right away.</p>
+        <p style="margin-top:0.08in">Two independent signals agree, weighed against the health record: <b>Check now.</b></p>
+        <p style="margin-top:0.08in">Example: <b>heart rate climbing and the camera sees a slump.</b></p>
+      </div>
+      <div class="card">
+        <div class="tag">Explainable</div>
+        <h3>Clear rules, not a black box</h3>
+        <p>Every flag states its reason in plain words.</p>
+        <p style="margin-top:0.08in"><b>AI writes the handoff summary only.</b> It never decides who is seen first.</p>
+      </div>
+      <div class="card" style="flex:1.75">
+        <div class="tag">The hardware is real</div>
+        <h3>Already piloted and studied</h3>
+        <ul class="hw">
+          <li><b>Dartmouth General, N.S.</b> Waiting patients wear a wireless pulse and oxygen monitor. Pilot started Jan 2024.</li>
+          <li><b>Royal Infirmary of Edinburgh.</b> A wearable caught deterioration a median <b>65 minutes</b> before manual checks.</li>
+          <li><b>Vancouver Coastal Health.</b> Study of two wearable monitors for waiting ER patients, 2025.</li>
+          <li><b>NHS England (London).</b> Open call for ER wearables, Feb 2026.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="banner">ALLEY is not a hardware bet. <span>It is the brain and the camera that make it useful.</span></div>
+  </div>
+  <div class="foot">
+    <span>Sources: Nova Scotia Health, Sept 2024, and CBC News, May 2024 (Dartmouth). Reed et al., SNAP40-ED, Emergency Care Journal, 2021 (Edinburgh, 250 patients; 65 min is versus manual checks, n=31). VCH Research Institute, Sept 2025 (NEWS2 study). DigitalHealth.London with NHS England (London), Feb 2026.</span>
+    <span class="n">3 / 5</span>
+  </div>
+</section>
+
+<!-- 4. MEASURABLE OUTCOME -->
+<section>
+  <div class="kicker">Measurable outcome</div>
+  <h1>More people caught in time.</h1>
+  <div class="grow">
+    <div class="row">
+      <div class="card">
+        <div class="tag">Measure 1: earlier</div>
+        <h3>Minutes gained</h3>
+        <p>Time from ALLEY's flag to the next manual vitals check. Benchmark: <b>65 minutes</b> in the Edinburgh wearable study.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Measure 2: fewer unseen</div>
+        <h3>Fewer people missed</h3>
+        <p>Of the patients who got worse while waiting, <b>how many ALLEY flagged</b> before staff were aware.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Measure 3: nurse time</div>
+        <h3>False alarms</h3>
+        <p>How many flags turned out to need <b>no action</b>. If nurses cannot trust it, it does not help.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="tag">Next step</div>
+      <p><b>A silent pilot in one Nova Scotia ER.</b> ALLEY runs without sending alerts. Then we measure how early it would have flagged the patients who deteriorated.</p>
+    </div>
+    <p class="promise">We are not promising a number of lives saved. We are promising to measure.</p>
+  </div>
+  <div class="foot">
+    <span>Benchmark: Reed et al., SNAP40-ED, Emergency Care Journal, 2021. Median 65 minutes earlier than manual vital signs (n=31 of 250 patients). ALLEY has not yet been tested with patients.</span>
+    <span class="n">4 / 5</span>
+  </div>
+</section>
+
+<!-- 5. IN HONOUR OF ALLISON -->
+<section class="honour">
+  <div class="kicker">ALLEY is named in honour of</div>
+  <h1>Allison Holthoff</h1>
+  <div class="rule"></div>
+  <p>Allison was 37. She died on December 31, 2022, after waiting hours in the emergency room at Cumberland Regional Health Care Centre in Amherst, Nova Scotia.</p>
+  <p>She was triaged at 11:14 a.m. and got worse while she waited. No one was positioned to see it.</p>
+  <p class="last">ALLEY exists so that no one waits unwatched.</p>
+  <div class="foot">
+    <span>This is about a gap in the system, not about any person. The family's legal claims have not been tested in court.</span>
+    <span class="n">5 / 5</span>
+  </div>
+</section>
+
+</body>
+</html>

@@ -8,7 +8,7 @@ from datetime import datetime
 
 from .models import Event, Patient
 
-SCENARIOS = ("stable", "hr_climb", "spo2_drop", "reset")
+SCENARIOS = ("stable", "hr_climb", "hr_spike", "spo2_drop", "reset")
 
 
 class Stream:
@@ -78,8 +78,10 @@ class WearableSim:
         for pid, s in self.streams.items():
             if self.patients[pid].status != "waiting":
                 continue
-            frac = min(1.0, (now - s.t0).total_seconds() / self.timers["scenario_ramp_seconds"])
-            if s.scenario == "hr_climb":
+            # hr_spike is the same rise as hr_climb, compressed into a few seconds.
+            ramp = self.sim["hr_spike_seconds"] if s.scenario == "hr_spike" else self.timers["scenario_ramp_seconds"]
+            frac = min(1.0, (now - s.t0).total_seconds() / ramp)
+            if s.scenario in ("hr_climb", "hr_spike"):
                 target = s.base_hr + self.sim["hr_climb_bpm"]
                 s.level_hr = s.from_hr + (target - s.from_hr) * frac
             elif s.scenario == "spo2_drop":

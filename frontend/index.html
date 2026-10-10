@@ -8,36 +8,63 @@
 </head>
 <body>
   <header>
-    <div class="brand">ALLEY <span>ER waiting-room deterioration monitor</span></div>
+    <div class="brand">ALLEY <span>Waiting room monitor</span></div>
     <div class="status">
-      <span id="mode" class="chip">demo mode</span>
+      <span id="mode" class="chip">Demo</span>
+      <span id="conn" class="chip off">Connecting</span>
       <span id="clock"></span>
-      <span id="conn" class="chip off">connecting</span>
     </div>
   </header>
 
+  <!-- Kept in the DOM and updated in place so the pulse animation never restarts. -->
+  <section id="alert" class="calm" role="alert" aria-live="assertive">
+    <div class="calm-body">
+      <span class="calm-dot"></span>
+      <span id="calm-text">Connecting to ALLEY.</span>
+      <span id="calm-sub" class="calm-sub"></span>
+    </div>
+    <div class="now-body">
+      <div class="now-main">
+        <div>
+          <div id="now-kicker" class="now-kicker">Needs a nurse now</div>
+          <h1 id="now-head" class="now-head"></h1>
+          <p id="now-note" class="now-note"></p>
+          <p class="now-why"><b>Why:</b><span id="now-why"></span></p>
+          <p class="now-do"><b>What to do:</b><span id="now-do"></span></p>
+          <div id="now-meta" class="now-meta"></div>
+        </div>
+        <div class="now-actions">
+          <button id="now-ack" data-action="acknowledge">I'm on it</button>
+          <button id="now-called" class="ghost" data-action="called_in">Called in</button>
+        </div>
+      </div>
+      <div id="alert-others"></div>
+    </div>
+  </section>
+
   <main>
-    <section class="camera">
-      <h2>Camera <span id="cam-chip" class="chip off">off</span></h2>
+    <section class="patients">
+      <h2>Who to check first <span id="count" class="muted"></span></h2>
+      <div id="cards"></div>
+    </section>
+
+    <section class="side">
+      <h2>Camera <span id="cam-chip" class="chip off">Off</span></h2>
       <div class="video-wrap">
         <img id="video" alt="Live camera preview with seat zones">
         <div id="video-placeholder">Waiting for camera</div>
       </div>
-      <h2>Event log</h2>
-      <ul id="events"><li class="empty">No events yet</li></ul>
-    </section>
-
-    <section class="patients">
-      <h2>Who to check first <span id="count" class="muted"></span></h2>
-      <div id="cards"></div>
+      <p class="cam-note">Posture only. No video stored. No facial recognition.</p>
+      <h2>What happened</h2>
+      <ul id="events"><li class="empty">Nothing to report yet</li></ul>
     </section>
   </main>
 
   <dialog id="handoff">
     <h3 id="handoff-title">Handoff</h3>
+    <p class="d-sub">Summary for the clinician taking over. Built from logged events only. Wearable values are simulated.</p>
     <pre id="handoff-text"></pre>
-    <p class="muted">Built from logged events only. Wearable values are simulated.</p>
-    <form method="dialog"><button>Close</button></form>
+    <form method="dialog"><button class="primary">Close</button></form>
   </dialog>
 
   <footer>Camera: live. Wearable &amp; records: simulated for demo. No video stored. No facial recognition.</footer>

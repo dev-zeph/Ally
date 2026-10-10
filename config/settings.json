@@ -1,9 +1,9 @@
 {
   "mode": "demo",
-  "demo":  {"state_hold_seconds": 3,  "seat_empty_seconds": 10,  "vitals_sustain_seconds": 5,   "corroboration_window_seconds": 90,  "scenario_ramp_seconds": 30},
+  "demo":  {"state_hold_seconds": 2,  "seat_empty_seconds": 10,  "vitals_sustain_seconds": 3,   "corroboration_window_seconds": 90,  "scenario_ramp_seconds": 30},
   "real":  {"state_hold_seconds": 30, "seat_empty_seconds": 600, "vitals_sustain_seconds": 120, "corroboration_window_seconds": 300, "scenario_ramp_seconds": 1800},
   "pose": {"model": "yolov8n-pose.pt", "kp_conf_min": 0.4, "camera_index": 1, "source": "", "head_drop_ratio": 0.15, "head_drop_fraction": 0.55,
-           "seat_mode": "order", "min_person_height": 0.25, "fall_detection": false},
+           "seat_mode": "order", "min_person_height": 0.2, "fall_detection": false},
   "vitals": {"hr_rise_ratio": 1.20, "hr_high": 131, "spo2_low": 91, "spo2_drop": 4},
-  "sim": {"hr_climb_bpm": 45, "spo2_drop_target": 89}
+  "sim": {"hr_climb_bpm": 45, "hr_spike_seconds": 1, "spo2_drop_target": 89}
 }

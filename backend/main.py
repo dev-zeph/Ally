@@ -6,6 +6,7 @@ Run from the repo root:
 import asyncio
 import json
 import os
+import threading
 import traceback
 from contextlib import asynccontextmanager
 from dataclasses import asdict
@@ -18,11 +19,18 @@ from fastapi.staticfiles import StaticFiles
 
 from .brain import Brain
 from .camera import Camera
-from .handoff import template_summary
-from .models import Event, Patient
+from .handoff import alert_note, handoff_summary
+from .models import Event, Patient, Tier
 from .wearable_sim import SCENARIOS, WearableSim
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# Optional .env at the repo root (gitignored): ANTHROPIC_API_KEY=... and ALLEY_MODEL=...
+if (ROOT / ".env").exists():
+    for line in (ROOT / ".env").read_text().splitlines():
+        key, sep, value = line.strip().partition("=")
+        if sep and key and not key.startswith("#"):
+            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 CONFIG = ROOT / "config"
 FRONTEND = ROOT / "frontend"
 
@@ -33,7 +41,7 @@ SEATS = json.loads((CONFIG / "seats.json").read_text())
 PATIENTS = {}
 EVENTS = []      # full log, newest last
 HANDOFFS = {}    # patient id -> handoff text
-SWAPPED = False  # demo control: the two seated patients trade seats
+ROTATION = 0     # demo control: how far the seated patients have been shifted along the seats
 brain = None
 sim = None
 camera = Camera(SETTINGS, TIMERS, SEATS)
@@ -58,8 +66,7 @@ def init_state():
     global brain, sim
     PATIENTS.clear()
     PATIENTS.update({p["id"]: Patient(**p) for p in json.loads((CONFIG / "patients.json").read_text())})
-    if SWAPPED:
-        swap(*[p for p in PATIENTS.values() if p.seat])
+    rotate_seats(ROTATION)
     EVENTS.clear()
     HANDOFFS.clear()
     brain = Brain(PATIENTS, log_system)
@@ -67,8 +74,42 @@ def init_state():
     camera.reset()
 
 
-def swap(a: Patient, b: Patient):
-    a.seat, b.seat = b.seat, a.seat
+def rotate_seats(steps: int):
+    """Shift every seated patient `steps` positions along the row (wrapping around)."""
+    seated = sorted((p for p in PATIENTS.values() if p.seat), key=lambda p: p.seat)
+    seats = [p.seat for p in seated]
+    for i, p in enumerate(seated):
+        p.seat = seats[(i + steps) % len(seats)]
+
+
+def side_of(seat):
+    """Where a seat sits in the camera view, in words."""
+    seats = sorted(s["seat"] for s in SEATS["seats"])
+    if seat not in seats:
+        return None
+    if seat == seats[0]:
+        return "far left"
+    if seat == seats[-1]:
+        return "far right"
+    if len(seats) == 3:
+        return "middle"
+    return ["second", "third", "fourth", "fifth"][seats.index(seat) - 1] + " from left"
+
+
+def request_alert_note(p: Patient):
+    """One plain sentence for the banner. Template first so it is never blank; Claude's
+    wording replaces it if the API answers. Text only: this never touches the tier."""
+    st = brain.states[p.id]
+    st.note_requested = True
+    signals = list(st.signals)
+    st.alert_note = alert_note(p, signals, use_llm=False)
+
+    def work():
+        note = alert_note(p, signals, use_llm=True)
+        if brain.states.get(p.id) is st:  # not cleared or reset in the meantime
+            st.alert_note = note
+
+    threading.Thread(target=work, daemon=True).start()
 
 
 def waiting():
@@ -116,6 +157,9 @@ def tick():
                   and e.source != "system" and e.source not in live_sources}
         active.update({(e.source, e.kind): e for e in live})
         brain.evaluate(p, list(active.values()))
+        st = brain.states[p.id]
+        if st.tier == Tier.CHECK_NOW and not st.note_requested:
+            request_alert_note(p)
 
 
 def build_state() -> dict:
@@ -133,6 +177,10 @@ def build_state() -> dict:
             corroborated=st.corroborated,
             acknowledged=bool(st.acknowledged_at),
             reason=st.reason,
+            signals=[{"source": e.source, "kind": e.kind, "severity": e.severity, "detail": e.detail}
+                     for e in st.signals],
+            alert_note=st.alert_note,
+            side=side_of(p.seat),
             hr=round(s.hr),
             spo2=round(s.spo2),
             hr_history=list(s.history),
@@ -204,7 +252,7 @@ def nurse_action(pid: str, action: str = Body(embed=True)):
         brain.clear(pid)
     elif action == "called_in":
         now = datetime.now()
-        HANDOFFS[pid] = template_summary(p, EVENTS, sim.streams[pid].trend(), now)
+        HANDOFFS[pid] = handoff_summary(p, EVENTS, sim.streams[pid].trend(), now)
         p.status = "called_in"
         log_system(pid, "called_in", "info", "Called in; handoff written")
         return {"ok": True, "handoff": HANDOFFS[pid]}
@@ -228,13 +276,10 @@ def wearable_control(pid: str, body: dict = Body()):
 
 @app.post("/api/swap_seats")
 def swap_seats():
-    """Handheld demo: seats are numbered left to right, so flip who sits on which side."""
-    global SWAPPED
-    seated = [p for p in PATIENTS.values() if p.seat]
-    if len(seated) != 2:
-        raise HTTPException(400, "Swap needs exactly two seated patients")
-    swap(*seated)
-    SWAPPED = not SWAPPED
+    """Handheld demo: seats are numbered left to right, so shift who sits where by one."""
+    global ROTATION
+    rotate_seats(1)
+    ROTATION += 1
     camera.reset()
     return {"ok": True}
 

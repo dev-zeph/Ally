@@ -7,20 +7,49 @@
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <div class="sim-banner">SIMULATED WEARABLE: demo control</div>
-  <div class="control-top">
-    <button id="reset-all">Reset whole demo</button>
-    <button id="swap">Swap seats (left/right)</button>
-    <span class="muted">Values here are generated, not measured. Reset reloads all patients and clears the log.</span>
+  <div class="sim-banner">SIMULATED WEARABLE: demo control
+    <small>Values here are generated, not measured. This page stands in for a wrist wearable.</small>
   </div>
-  <div id="panels" class="control"></div>
+  <div class="control-top">
+    <button id="swap">Rotate seats</button>
+    <span id="conn" class="chip off">Connecting</span>
+    <span id="flash" class="muted"></span>
+    <span class="spacer"></span>
+    <span class="muted">Reset reloads all patients and clears the log.</span>
+    <button id="reset-all">Reset whole demo</button>
+  </div>
+
+  <h2 class="control-title">On camera</h2>
+  <div id="seated" class="control"></div>
+  <h2 class="control-title">Background patients</h2>
+  <div id="background" class="control small"></div>
+
+  <footer>Camera: live. Wearable &amp; records: simulated for demo. No video stored. No facial recognition.</footer>
 
   <script>
-    const panels = document.getElementById("panels");
+    const seated = document.getElementById("seated");
+    const background = document.getElementById("background");
+    const conn = document.getElementById("conn");
+    const flash = document.getElementById("flash");
     const built = new Map();
+    const TIER = { watching: "Watching", check_soon: "Check soon", check_now: "Check now" };
+    const SCENARIO = { stable: "Stable", hr_climb: "HR climbing (slow)", hr_spike: "Heart rate spike", spo2_drop: "SpO2 dropping", manual: "Manual" };
 
-    function post(url, body) {
-      return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+    function say(text) {
+      flash.textContent = text;
+      clearTimeout(say.t);
+      say.t = setTimeout(() => { flash.textContent = ""; }, 2500);
+    }
+
+    async function post(url, body, label) {
+      try {
+        const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+        if (!res.ok) say(`${label || "Request"} was rejected by the server (${res.status}).`);
+        else if (label) say(`${label}: sent.`);
+        return res;
+      } catch (err) {
+        say("Could not reach the server.");
+      }
     }
 
     function build(p) {
@@ -29,59 +58,90 @@
       el.innerHTML = `
         <h3></h3>
         <div class="muted complaint"></div>
-        <div class="live"></div>
+        <div class="live">
+          <div class="fact"><div class="k">Heart rate <span class="chip sim">Simulated</span></div><div class="v" data-live="hr"></div></div>
+          <div class="fact"><div class="k">SpO2 <span class="chip sim">Simulated</span></div><div class="v" data-live="spo2"></div></div>
+        </div>
+        <div class="muted state"></div>
         <div class="buttons">
-          <button data-s="stable">Stable</button>
-          <button data-s="hr_climb">HR climb</button>
+          <button class="spike" data-s="hr_spike">Heart rate spike</button>
+          <button data-s="hr_climb">HR climb (slow)</button>
           <button data-s="spo2_drop">SpO2 drop</button>
+          <button data-s="stable">Stable</button>
           <button data-s="reset">Reset</button>
         </div>
-        <label>HR <input type="range" min="40" max="180" data-k="hr"><span data-v="hr"></span></label>
+        <label>Heart rate <input type="range" min="40" max="180" data-k="hr"><span data-v="hr"></span></label>
         <label>SpO2 <input type="range" min="80" max="100" data-k="spo2"><span data-v="spo2"></span></label>`;
 
-      el.querySelector(".complaint").textContent =
-        `${p.complaint} · triage HR ${p.triage_vitals.hr}, SpO2 ${p.triage_vitals.spo2}%`;
+      // pointerdown so a tap is never lost; one tap, one request.
       el.querySelectorAll("button").forEach((b) => {
-        b.onclick = () => post(`/api/wearable/${p.id}`, { scenario: b.dataset.s });
+        b.addEventListener("pointerdown", () => post(`/api/wearable/${encodeURIComponent(p.id)}`, { scenario: b.dataset.s }, `${b.textContent} for ${p.name || p.id}`));
       });
       el.querySelectorAll("input").forEach((input) => {
         input.oninput = () => {
           el.querySelector(`[data-v=${input.dataset.k}]`).textContent = input.value;
-          post(`/api/wearable/${p.id}`, { [input.dataset.k]: Number(input.value) });
+          post(`/api/wearable/${encodeURIComponent(p.id)}`, { [input.dataset.k]: Number(input.value) });
         };
       });
-      panels.appendChild(el);
       return el;
     }
 
+    function place(p) {
+      if (p.side) return `${p.side} seat`;
+      if (p.seat) return `seat ${p.seat}`;
+      return "off camera";
+    }
+
     function render(state) {
-      const ids = state.patients.map((p) => p.id);
+      const patients = Array.isArray(state.patients) ? state.patients : [];
+      const ids = patients.map((p) => p.id);
       for (const [id, el] of built) if (!ids.includes(id)) { el.remove(); built.delete(id); }
       // Seated (on camera) patients first, in seat order.
-      const sorted = state.patients.slice().sort((a, b) => (a.seat || 99) - (b.seat || 99) || a.id.localeCompare(b.id));
+      const sorted = patients.slice().sort((a, b) => (a.seat || 99) - (b.seat || 99) || a.id.localeCompare(b.id));
+      const order = { seated: [], background: [] };
       for (const p of sorted) {
         if (!built.has(p.id)) built.set(p.id, build(p));
         const el = built.get(p.id);
-        const side = p.seat === 1 ? "left of frame" : p.seat === 2 ? "right of frame" : "off camera";
-        el.querySelector("h3").textContent = `${p.name ? p.name + " · " : ""}${p.id} · ${side} · CTAS ${p.ctas}`;
-        el.querySelector(".live").textContent = `HR ${p.hr} · SpO2 ${p.spo2}% · ${p.scenario}`;
+        const tv = p.triage_vitals || {};
+        el.className = `card${p.seat ? " seated" : ""}`;
+        el.dataset.id = p.id;
+        el.querySelector("h3").textContent = `${p.name ? p.name + " · " : ""}${p.id} · ${place(p)}`;
+        el.querySelector(".complaint").textContent =
+          `${p.complaint || ""} · triage level ${p.ctas ?? "?"} · at triage: heart rate ${tv.hr ?? "?"}, SpO2 ${tv.spo2 ?? "?"}%`;
+        el.querySelector("[data-live=hr]").textContent = p.hr ?? "?";
+        el.querySelector("[data-live=spo2]").textContent = `${p.spo2 ?? "?"}%`;
+        el.querySelector(".state").textContent =
+          `Scenario: ${SCENARIO[p.scenario] || p.scenario || "?"} · Dashboard shows: ${TIER[p.tier] || p.tier || "?"}`;
         el.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.s === p.scenario));
         el.querySelectorAll("input").forEach((input) => {
           if (document.activeElement === input) return;
           input.value = p[input.dataset.k];
-          el.querySelector(`[data-v=${input.dataset.k}]`).textContent = p[input.dataset.k];
+          el.querySelector(`[data-v=${input.dataset.k}]`).textContent = p[input.dataset.k] ?? "";
         });
+        order[p.seat ? "seated" : "background"].push(el);
+      }
+      for (const [box, els] of [[seated, order.seated], [background, order.background]]) {
+        const want = els.map((e) => e.dataset.id).join();
+        const have = [...box.children].map((e) => e.dataset.id).join();
+        if (want !== have) els.forEach((e) => box.appendChild(e));
       }
     }
 
-    document.getElementById("reset-all").onclick = () => post("/api/reset");
-    document.getElementById("swap").onclick = () => post("/api/swap_seats");
+    document.getElementById("reset-all").addEventListener("click", () => post("/api/reset", {}, "Reset whole demo"));
+    document.getElementById("swap").addEventListener("click", () => post("/api/swap_seats", {}, "Rotate seats"));
+
+    function setConn(on) {
+      conn.textContent = on ? "Connected" : "Reconnecting";
+      conn.className = `chip ${on ? "on" : "warn"}`;
+    }
 
     function connect() {
       const ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`);
-      ws.onmessage = (msg) => render(JSON.parse(msg.data));
-      ws.onclose = () => setTimeout(connect, 1000);
+      ws.onopen = () => setConn(true);
+      ws.onmessage = (msg) => { try { render(JSON.parse(msg.data)); } catch (err) { /* skip a bad frame */ } };
+      ws.onclose = () => { setConn(false); setTimeout(connect, 1000); };
     }
+    fetch("/api/state").then((r) => r.json()).then(render).catch(() => {});
     connect();
   </script>
 </body>

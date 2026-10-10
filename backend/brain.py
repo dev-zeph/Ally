@@ -2,7 +2,7 @@
 
 No model, no LLM. Tiers only go up automatically; only a nurse action lowers them.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
@@ -18,6 +18,9 @@ class PatientState:
     acknowledged_at: Optional[str] = None
     cleared_at: Optional[str] = None
     reason: str = ""
+    signals: list = field(default_factory=list)  # the active events behind `reason`
+    alert_note: str = ""                         # one plain sentence for the nurse (text only)
+    note_requested: bool = False
 
 
 def history_text(p: Patient) -> str:
@@ -66,8 +69,10 @@ class Brain:
             if hx:
                 parts.append(f"Hx: {hx}")
             st.reason = " · ".join(parts)
+            st.signals = sorted(active, key=lambda e: e.ts)
         elif st.tier == Tier.WATCHING:
             st.reason = ""
+            st.signals = []
         # An elevated tier keeps its last reason until a nurse clears it.
 
     def acknowledge(self, pid: str):

@@ -167,7 +167,8 @@ class Camera:
                     threshold = self.pose["head_drop_ratio"]
                     if n >= BASELINE_SAMPLES:
                         threshold = max(threshold, base * self.pose["head_drop_fraction"])
-                    raw, head_ratio = classify(kps, conf, box, self.pose["kp_conf_min"], threshold)
+                    raw, head_ratio = classify(kps, conf, box, self.pose["kp_conf_min"], threshold,
+                                                head_was_visible=n >= BASELINE_SAMPLES)
                     if raw == "upright" and head_ratio is not None:
                         weight = 1 / (n + 1) if n < BASELINE_SAMPLES else 0.02
                         self.baseline[seat] = (base + (head_ratio - base) * weight, n + 1)

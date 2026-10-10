@@ -2,6 +2,8 @@
 import math
 
 NOSE, L_SHOULDER, R_SHOULDER, L_HIP, R_HIP = 0, 5, 6, 11, 12
+FACE = (1, 2, 3, 4)  # eyes and ears, used when the nose is not visible
+SHOULDER_TILT_SLUMP = 30  # degrees off level: leaning well over to one side
 
 
 def _mid(kps, conf, a, b, conf_min):
@@ -11,11 +13,13 @@ def _mid(kps, conf, a, b, conf_min):
     return sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
 
 
-def classify(kps, conf, bbox, conf_min, head_drop_ratio):
+def classify(kps, conf, bbox, conf_min, head_drop_ratio, head_was_visible=False):
     """Return (state, head_ratio). State is "upright", "slumped" or "lying".
 
     head_ratio = how far the nose sits above the shoulder line, in shoulder-widths
     (about 0.6+ when upright, near 0 or negative when the head has dropped).
+    head_was_visible: this person's face was seen while upright, so a face that has now
+    vanished between visible shoulders means the head is down, not that they face away.
     """
     x1, y1, x2, y2 = bbox
     w, h = x2 - x1, y2 - y1
@@ -28,10 +32,26 @@ def classify(kps, conf, bbox, conf_min, head_drop_ratio):
     if shoulders and hips:
         angle = math.degrees(math.atan2(abs(shoulders[0] - hips[0]), hips[1] - shoulders[1]))
 
+    # Head height: the nose if we can see it, otherwise the eyes and ears.
+    head_y = None
+    if conf[NOSE] >= conf_min:
+        head_y = kps[NOSE][1]
+    else:
+        face = [kps[i][1] for i in FACE if conf[i] >= conf_min]
+        if face:
+            head_y = sum(face) / len(face)
+
     head_ratio = None
     head_dropped = False
-    if shoulders and conf[NOSE] >= conf_min:
-        gap = shoulders[1] - kps[NOSE][1]  # pixels the nose is above the shoulder line
+    tilt = None
+    if both_shoulders:
+        dx = abs(kps[L_SHOULDER][0] - kps[R_SHOULDER][0])
+        dy = abs(kps[L_SHOULDER][1] - kps[R_SHOULDER][1])
+        tilt = math.degrees(math.atan2(dy, dx))
+        if head_y is None and head_was_visible:
+            head_dropped = True  # face gone, shoulders still there: head is down
+    if shoulders and head_y is not None:
+        gap = shoulders[1] - head_y  # pixels the head is above the shoulder line
         if both_shoulders:
             width = math.dist(kps[L_SHOULDER], kps[R_SHOULDER])
             if width > 1:
@@ -45,14 +65,10 @@ def classify(kps, conf, bbox, conf_min, head_drop_ratio):
     if hips is None and w > 1.2 * h:
         # Hips hidden by the chair: wide box means lying, unless it's just a close-up of
         # level shoulders (someone sitting near the camera).
-        tilt = 90.0
-        if both_shoulders:
-            dx = abs(kps[L_SHOULDER][0] - kps[R_SHOULDER][0])
-            dy = abs(kps[L_SHOULDER][1] - kps[R_SHOULDER][1])
-            tilt = math.degrees(math.atan2(dy, dx))
-        if tilt > 35:
+        if tilt is None or tilt > 35:
             return "lying", head_ratio
-    if head_dropped or (angle is not None and 30 <= angle <= 60):
+    leaning = tilt is not None and tilt > SHOULDER_TILT_SLUMP
+    if head_dropped or leaning or (angle is not None and 30 <= angle <= 60):
         return "slumped", head_ratio
     return "upright", head_ratio
 

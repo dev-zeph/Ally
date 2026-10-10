@@ -101,7 +101,7 @@ def alert_note(p: Patient, signals: list, use_llm: bool) -> str:
         return template
     text = ask_claude(
         RULES + " Write ONE sentence of at most 30 words telling the nurse what ALLEY observed "
-        "for this patient and that they should be reassessed now.",
+        "for this patient, that it may need urgent attention, and that they should be reassessed now.",
         f"Patient: {who}, triage level CTAS {p.ctas}, complaint: {p.complaint}. "
         f"History: {hx or 'none recorded'}. Signals observed: {seen}.",
     )

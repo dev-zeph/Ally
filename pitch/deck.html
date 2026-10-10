@@ -116,163 +116,164 @@
   .honour .kicker { color: #8fd3cf; }
   .honour h1 { font-size: 58pt; font-weight: 600; }
   .honour .rule { width: 1.1in; height: 3px; background: #8fd3cf; margin: 0.34in 0; }
-  .honour p { font-size: 23pt; line-height: 1.42; color: #dbe4eb; max-width: 9.6in; }
+  .honour p.x { font-size: 23pt; line-height: 1.42; color: #dbe4eb; max-width: 9.6in; }
   .honour p + p { margin-top: 0.2in; }
   .honour p.last { color: #fff; font-weight: 600; }
   .honour .foot { left: 1.4in; right: 0.85in; border-top-color: #33485c; color: #9fb1c1; }
   .honour .foot .n { color: #fff; }
+
+  /* v2 */
+  .honour .who { font-size: 25pt; line-height: 1.4; color: #dbe4eb; max-width: 10.4in; }
+  .honour .who + .who { margin-top: 0.16in; }
+  .huge { font-size: 150pt; font-weight: 700; line-height: 0.95; letter-spacing: -0.03em; color: var(--red); }
+  .hero { display: flex; gap: 0.5in; align-items: center; }
+  .hero .txt { font-size: 26pt; line-height: 1.3; color: var(--muted); }
+  .hero .txt b { color: var(--ink); }
+  .watch { flex: 1; background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--teal); border-radius: 0.14in; padding: 0.24in 0.26in; }
+  .watch h3 { font-size: 25pt; line-height: 1.12; margin-bottom: 0.08in; }
+  .watch p { font-size: 17.5pt; line-height: 1.3; color: var(--muted); }
+  .watch p b { color: var(--ink); }
+  .out { margin-top: 0.16in; background: var(--ink); color: #fff; border-radius: 0.14in; padding: 0.2in 0.3in; display: flex; gap: 0.3in; align-items: center; }
+  .out .pill { margin: 0; white-space: nowrap; font-size: 20pt; }
+  .out p { font-size: 20pt; line-height: 1.3; }
+  .sol .watch { padding: 0.18in 0.24in; }
+  .sol .watch p { font-size: 16.5pt; }
+  .stepn { font-size: 13pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.08in; }
+  .close { margin-top: 0.2in; background: var(--ink); color: #fff; border-radius: 0.14in; padding: 0.24in 0.34in; }
+  .close .tag { color: #8fd3cf; }
+  .close p { font-size: 24pt; line-height: 1.3; font-weight: 600; }
 </style>
 </head>
 <body>
 
-<!-- 1. PROBLEM -->
-<section>
-  <div class="kicker">The problem</div>
-  <h1>After triage, nobody is watching<br>the waiting room.</h1>
-  <p class="sub">A patient can look stable at triage, sit down to wait, and get worse for hours with no one positioned to see it.</p>
-  <div class="grow">
-    <div class="row">
-      <div class="card stat">
-        <div class="big">673</div>
-        <p>deaths in Nova Scotia emergency departments in 2023-24. It was <b>406</b> in <span style="white-space:nowrap">2020-21.*</span></p>
-      </div>
-      <div class="card stat">
-        <div class="big">55,000</div>
-        <p>people left without being seen in 2022-23, about <b>10%</b> of 530,000 emergency visits.</p>
-      </div>
-      <div class="card stat">
-        <div class="big">32.8%</div>
-        <p>of emergency patients in an Edinburgh study got worse in at least one vital sign <b>within 4 hours</b>.</p>
-      </div>
-    </div>
-  </div>
+<!-- 1. ALLISON -->
+<section class="honour">
+  <div class="kicker">December 31, 2022 &middot; Amherst, Nova Scotia</div>
+  <h1>Allison Holthoff, 37.</h1>
+  <div class="rule"></div>
+  <p class="who">A mother of three. She came to the emergency room with severe abdominal pain.</p>
+  <p class="who">She was triaged at 11:14 a.m. Then she sat down to wait.</p>
+  <p class="who">She got worse in the waiting room for hours. She died that day.</p>
+  <p class="who" style="color:#fff;font-weight:600">No one was positioned to see it happening.</p>
   <div class="foot">
-    <span>*Counts all deaths after triage and before discharge or admission, not only waiting-room deaths. Nova Scotia Health also cites sicker patients. Sources: Nova Scotia Health figures reported by CTV News and The Globe and Mail, July 2024. Reed et al., SNAP40-ED study (250 patients), Emergency Care Journal, 2021.</span>
+    <span>This is about a gap in the system, not about any person. The family's legal claims have not been tested in court. Sources: CBC News, CTV News Atlantic, Global News, 2023.</span>
     <span class="n">1 / 5</span>
   </div>
 </section>
 
-<!-- 2. SOLUTION -->
+<!-- 2. NOT ONLY ALLISON -->
 <section>
-  <div class="kicker">The solution</div>
-  <h1>ALLEY keeps watching while you wait.</h1>
-  <p class="sub">It tells the nurse who needs help first. <b>It does not replace the nurse.</b></p>
+  <div class="kicker">Not only Allison</div>
+  <h1>673 people died in Nova Scotia emergency departments in one year.</h1>
   <div class="grow">
-    <div class="flow">
-      <div class="inputs">
-        <div class="in"><div class="num">1</div><div>
-          <h3>Camera: posture, seat by seat</h3>
-          <p>Upright, slumped, or lying down. Computer vision (OpenCV, pose estimation). No facial recognition. No video stored.</p></div></div>
-        <div class="in"><div class="num">2</div><div>
-          <h3>Wearable band: heart rate, blood oxygen</h3>
-          <p>The kind of device hospitals are already piloting.</p></div></div>
-        <div class="in"><div class="num">3</div><div>
-          <h3>Health record: triage, complaint, history</h3>
-          <p>The same signal means more for a higher-risk patient.</p></div></div>
-      </div>
-      <div class="arrow">&rarr;</div>
-      <div class="nurse">
-        <div class="tag">What the nurse sees</div>
-        <span class="pill p1">Watching</span>
-        <span class="pill p2">Check soon</span>
-        <span class="pill p3">Check now</span>
-        <p>Every flag spells out the reason.</p>
-        <p>When the patient is called in: a handoff timeline of everything that happened while they waited.</p>
+    <div class="hero">
+      <div class="huge">673</div>
+      <div class="txt">
+        <p>Up from <b>406</b> three years earlier.*</p>
+        <p style="margin-top:0.14in">Waits are long, and people get worse while they wait: <b>1 in 3</b> emergency patients in one study deteriorated <b>within 4 hours</b>.</p>
       </div>
     </div>
+    <div class="banner" style="margin-top:0.3in">After triage, <span>nobody is watching the waiting room.</span></div>
+  </div>
+  <div class="foot">
+    <span>*2023-24 vs 2020-21. Counts all deaths after triage and before discharge or admission, not only waiting-room deaths. Nova Scotia Health also cites sicker patients. Sources: Nova Scotia Health figures reported by CTV News and The Globe and Mail, July 2024. Reed et al., SNAP40-ED (250 patients, 32.8%), Emergency Care Journal, 2021.</span>
+    <span class="n">2 / 5</span>
+  </div>
+</section>
+
+<!-- 3. SOLUTION -->
+<section class="sol">
+  <div class="kicker">Our solution</div>
+  <h1>ALLEY watches while you wait.</h1>
+  <div class="grow">
+    <div class="row">
+      <div class="watch">
+        <div class="stepn">1 &middot; Health record</div>
+        <h3>Who they are</h3>
+        <p>Why they came in, triage level, history. <b>Higher risk, lower bar to alert.</b></p>
+      </div>
+      <div class="watch">
+        <div class="stepn">2 &middot; Wearable band</div>
+        <h3>Their vitals</h3>
+        <p>Heart rate and blood oxygen, <b>every second</b>, not once every few hours.</p>
+      </div>
+      <div class="watch">
+        <div class="stepn">3 &middot; Camera</div>
+        <h3>Their posture</h3>
+        <p>Upright, slumped, or lying down. <b>No facial recognition. No video stored.</b></p>
+      </div>
+    </div>
+    <div class="out">
+      <span class="pill p3">Check now</span>
+      <p>When the signs agree, the nurse is told <b>who to check first, and why.</b> ALLEY does not replace the nurse.</p>
+    </div>
     <div class="today">
-      <div class="work"><b>Working today</b>Live camera posture detection, the rules brain, the nurse dashboard, the handoff summary.</div>
+      <div class="work"><b>Working today</b>Live camera posture detection, the cross-check, the nurse dashboard, the AI alert and handoff.</div>
       <div class="sim"><b>Simulated today</b>Wearable data (from a control panel) and patient records (mock data).</div>
     </div>
   </div>
   <div class="foot">
     <span>Built today at the Tribe AI Hackathon, Saint Mary's University, Halifax. People are tracked by seat, not by face.</span>
-    <span class="n">2 / 5</span>
-  </div>
-</section>
-
-<!-- 3. WHY IT WORKS -->
-<section>
-  <div class="kicker">Why it works</div>
-  <h1>It cross-checks before it alarms.</h1>
-  <div class="grow">
-    <div class="row s3">
-      <div class="card" style="flex:1.12">
-        <div class="tag">Cross-checked</div>
-        <h3>Fewer false alarms, by design</h3>
-        <p>One mild signal alone: keep watching. A severe sign is flagged right away.</p>
-        <p style="margin-top:0.08in">Two independent signals agree, weighed against the health record: <b>Check now.</b></p>
-        <p style="margin-top:0.08in">Example: <b>heart rate climbing and the camera sees a slump.</b></p>
-      </div>
-      <div class="card">
-        <div class="tag">Explainable</div>
-        <h3>Clear rules, not a black box</h3>
-        <p>Every flag states its reason in plain words.</p>
-        <p style="margin-top:0.08in"><b>AI writes the handoff summary only.</b> It never decides who is seen first.</p>
-      </div>
-      <div class="card" style="flex:1.75">
-        <div class="tag">The hardware is real</div>
-        <h3>Already piloted and studied</h3>
-        <ul class="hw">
-          <li><b>Dartmouth General, N.S.</b> Waiting patients wear a wireless pulse and oxygen monitor. Pilot started Jan 2024.</li>
-          <li><b>Royal Infirmary of Edinburgh.</b> A wearable caught deterioration a median <b>65 minutes</b> before manual checks.</li>
-          <li><b>Vancouver Coastal Health.</b> Study of two wearable monitors for waiting ER patients, 2025.</li>
-          <li><b>NHS England (London).</b> Open call for ER wearables, Feb 2026.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="banner">ALLEY is not a hardware bet. <span>It is the brain and the camera that make it useful.</span></div>
-  </div>
-  <div class="foot">
-    <span>Sources: Nova Scotia Health, Sept 2024, and CBC News, May 2024 (Dartmouth). Reed et al., SNAP40-ED, Emergency Care Journal, 2021 (Edinburgh, 250 patients; 65 min is versus manual checks, n=31). VCH Research Institute, Sept 2025 (NEWS2 study). DigitalHealth.London with NHS England (London), Feb 2026.</span>
     <span class="n">3 / 5</span>
   </div>
 </section>
 
-<!-- 4. MEASURABLE OUTCOME -->
+<!-- 4. WHERE THE AI IS -->
 <section>
-  <div class="kicker">Measurable outcome</div>
-  <h1>More people caught in time.</h1>
+  <div class="kicker">Where the AI is</div>
+  <h1>AI sees, cross-checks, and explains.</h1>
   <div class="grow">
     <div class="row">
-      <div class="card">
-        <div class="tag">Measure 1: earlier</div>
-        <h3>Minutes gained</h3>
-        <p>Time from ALLEY's flag to the next manual vitals check. Benchmark: <b>65 minutes</b> in the Edinburgh wearable study.</p>
+      <div class="watch">
+        <div class="stepn">1 &middot; AI sees</div>
+        <h3>Computer vision</h3>
+        <p>A vision model reads body posture from the live camera and notices a <b>slump or a collapse</b>.</p>
       </div>
-      <div class="card">
-        <div class="tag">Measure 2: fewer unseen</div>
-        <h3>Fewer people missed</h3>
-        <p>Of the patients who got worse while waiting, <b>how many ALLEY flagged</b> before staff were aware.</p>
+      <div class="watch">
+        <div class="stepn">2 &middot; ALLEY cross-checks</div>
+        <h3>Vitals + posture + history</h3>
+        <p>It tracks the trend in the vitals and weighs it against posture and the health record. <b>Two signals agree: Check now.</b></p>
       </div>
-      <div class="card">
-        <div class="tag">Measure 3: nurse time</div>
-        <h3>False alarms</h3>
-        <p>How many flags turned out to need <b>no action</b>. If nurses cannot trust it, it does not help.</p>
+      <div class="watch">
+        <div class="stepn">3 &middot; AI explains</div>
+        <h3>Plain words for the nurse</h3>
+        <p>Claude writes the alert in one clear sentence, and the <b>handoff summary</b> of everything that happened in the wait.</p>
       </div>
     </div>
-    <div class="step">
-      <div class="tag">Next step</div>
-      <p><b>A silent pilot in one Nova Scotia ER.</b> ALLEY runs without sending alerts. Then we measure how early it would have flagged the patients who deteriorated.</p>
-    </div>
-    <p class="promise">We are not promising a number of lives saved. We are promising to measure.</p>
+    <div class="banner" style="margin-top:0.26in">Clear rules a clinician can set, so every alert states its reason. <span>The nurse always decides.</span></div>
   </div>
   <div class="foot">
-    <span>Benchmark: Reed et al., SNAP40-ED, Emergency Care Journal, 2021. Median 65 minutes earlier than manual vital signs (n=31 of 250 patients). ALLEY has not yet been tested with patients.</span>
+    <span>Posture: OpenCV with a pose-estimation model. Priority is set by explainable rules; the language model writes text only and never changes who is seen first. ALLEY never tells anyone they are fine.</span>
     <span class="n">4 / 5</span>
   </div>
 </section>
 
-<!-- 5. IN HONOUR OF ALLISON -->
-<section class="honour">
-  <div class="kicker">ALLEY is named in honour of</div>
-  <h1>Allison Holthoff</h1>
-  <div class="rule"></div>
-  <p>Allison was 37. She died on December 31, 2022, after waiting hours in the emergency room at Cumberland Regional Health Care Centre in Amherst, Nova Scotia.</p>
-  <p>She was triaged at 11:14 a.m. and got worse while she waited. No one was positioned to see it.</p>
-  <p class="last">ALLEY exists so that no one waits unwatched.</p>
+<!-- 5. IMPACT -->
+<section>
+  <div class="kicker">The impact</div>
+  <h1>Earlier warning. More time to act.</h1>
+  <div class="grow">
+    <div class="row">
+      <div class="card stat">
+        <div class="big">65 min</div>
+        <p>earlier. In an Edinburgh ER study, a wearable caught deterioration a median <b>65 minutes before</b> manual checks.*</p>
+      </div>
+      <div class="card stat">
+        <div class="big" style="font-size:40pt;line-height:1.1">Already in N.S.</div>
+        <p><b>Dartmouth General</b> began piloting wireless pulse and oxygen monitors on waiting patients in Jan 2024.</p>
+      </div>
+      <div class="card stat">
+        <div class="big" style="font-size:40pt;line-height:1.1">Next step</div>
+        <p><b>A silent pilot in one Nova Scotia ER.</b> We measure how early ALLEY would have flagged each patient.</p>
+      </div>
+    </div>
+    <div class="close">
+      <div class="tag">In honour of</div>
+      <p>Allison Holthoff, and the 673. So that no one waits unwatched.</p>
+    </div>
+  </div>
   <div class="foot">
-    <span>This is about a gap in the system, not about any person. The family's legal claims have not been tested in court.</span>
+    <span>*Reed et al., SNAP40-ED, Emergency Care Journal, 2021 (n=31 of 250 patients; a research armband, not ALLEY). ALLEY has not yet been tested with patients. We are not promising a number of lives saved; we are promising to measure. Dartmouth: Nova Scotia Health, Sept 2024.</span>
     <span class="n">5 / 5</span>
   </div>
 </section>

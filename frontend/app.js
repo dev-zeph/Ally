@@ -59,6 +59,7 @@ function displayName(p) { return p.name || `Patient ${p.id}`; }
 function ctasText(n) { return `Triage level ${n}${CTAS_LABEL[n] ? ` (${CTAS_LABEL[n]})` : ""}`; }
 
 function where(p) {
+  if (p.side === "on camera") return "on camera";
   if (p.side) return `${p.side} seat`;
   if (p.seat) return `seat ${p.seat}`;
   return "waiting area, not on camera";

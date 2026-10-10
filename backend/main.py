@@ -87,6 +87,8 @@ def side_of(seat):
     seats = sorted(s["seat"] for s in SEATS["seats"])
     if seat not in seats:
         return None
+    if len(seats) == 1:
+        return "on camera"
     if seat == seats[0]:
         return "far left"
     if seat == seats[-1]:
@@ -132,7 +134,9 @@ def camera_conditions(p: Patient, now: datetime) -> list:
     state, seconds = held
     kind, severity, label = CAMERA_CONDITIONS[state]
     onset = stamp(now - timedelta(seconds=seconds))
-    return [Event(onset, p.id, "camera", kind, severity, f"{label} {int(seconds)}s")]
+    # No duration in the first moments: "0s" reads as "not happening".
+    detail = f"{label} {int(seconds)}s" if seconds >= 3 else label
+    return [Event(onset, p.id, "camera", kind, severity, detail)]
 
 
 def tick():
